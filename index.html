@@ -76,7 +76,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>🌐 uploaded Webアプリケーション側</h2>
+        <h2>🌐Webアプリケーション側</h2>
         <p>このフィールドに入力すると、自動的にiOS側に値が送信されます。</p>
         
         <input 
@@ -85,10 +85,7 @@
             placeholder="ここに入力してください..." 
         />
         
-        <div class="info">
-            <p><strong>iOS側から受信した値:</strong></p>
-            <p><span id="receivedValue">-</span></p>
-        </div>
+
           <iframe
     src="https://i-reporter.jp/"
     class="iframe-container"
@@ -119,12 +116,7 @@
             }
         });
         
-        // iOS側から値を受信する関数（グローバルスコープに配置）
-        window.receiveFromNative = function(value) {
-            document.getElementById('receivedValue').textContent = value;
-            document.getElementById('webInput').value = value;
-            console.log('iOS側から受信: ' + value);
-        };
+
     </script>
 </body>
 </html>
