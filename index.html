@@ -76,48 +76,97 @@
 </head>
 <body>
     <div class="container">
-        <h2>🌐Webアプリケーション側</h2>
-        <p>このフィールドに入力すると、自動的にiOS側に値が送信されます。</p>
+        <h2>🌐 Webアプリケーション側</h2>
+        <p>各フィールドに入力すると、自動的にiOS側に値が送信されます。</p>
         
+        <label for="webInput1" style="display: block; margin-top: 10px; font-weight: bold; color: #333;">クラスター1:</label>
         <input 
             type="text" 
-            id="webInput" 
-            placeholder="ここに入力してください..." 
+            id="webInput1" 
+            placeholder="クラスター1の値を入力..." 
         />
         
-
-          <iframe
-    src="https://i-reporter.jp/"
-    class="iframe-container"
-    frameborder="0"
-    loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
-  ></iframe>
+        <label for="webInput2" style="display: block; margin-top: 10px; font-weight: bold; color: #333;">クラスター2:</label>
+        <input 
+            type="text" 
+            id="webInput2" 
+            placeholder="クラスター2の値を入力..." 
+        />
+        
+        <label for="webInput3" style="display: block; margin-top: 10px; font-weight: bold; color: #333;">クラスター3:</label>
+        <input 
+            type="text" 
+            id="webInput3" 
+            placeholder="クラスター3の値を入力..." 
+        />
+        
+        <button onclick="sendToNative()">
+            📤 iOS側に送信
+        </button>
+        
+        <div class="info">
+            <p><strong>iOS側から受信した値:</strong></p>
+            <p><span id="receivedValue">-</span></p>
+        </div>
     </div>
 
     <script>
-        // iOS側に値を送信する関数
+        // iOS側に値を送信する関数（3つの値をJSON形式で送信）
         function sendToNative() {
-            const value = document.getElementById('webInput').value;
+            const value1 = document.getElementById('webInput1').value;
+            const value2 = document.getElementById('webInput2').value;
+            const value3 = document.getElementById('webInput3').value;
+            
+            const data = {
+                cluster1: value1,
+                cluster2: value2,
+                cluster3: value3
+            };
+            
             if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iosBridge) {
-                window.webkit.messageHandlers.iosBridge.postMessage(value);
-                console.log('iOS側に送信: ' + value);
+                window.webkit.messageHandlers.iosBridge.postMessage(JSON.stringify(data));
+                console.log('iOS側に送信: ', data);
             } else {
                 console.log('iOS Bridge が利用できません');
             }
         }
         
         // 入力フィールドの変更を監視（リアルタイム送信）
-        document.getElementById('webInput').addEventListener('input', function(e) {
-            const value = e.target.value;
+        function sendValuesToNative() {
+            const value1 = document.getElementById('webInput1').value;
+            const value2 = document.getElementById('webInput2').value;
+            const value3 = document.getElementById('webInput3').value;
+            
+            const data = {
+                cluster1: value1,
+                cluster2: value2,
+                cluster3: value3
+            };
+            
             if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iosBridge) {
-                window.webkit.messageHandlers.iosBridge.postMessage(value);
-                console.log('リアルタイム送信: ' + value);
+                window.webkit.messageHandlers.iosBridge.postMessage(JSON.stringify(data));
+                console.log('リアルタイム送信: ', data);
             }
-        });
+        }
         
-
+        document.getElementById('webInput1').addEventListener('input', sendValuesToNative);
+        document.getElementById('webInput2').addEventListener('input', sendValuesToNative);
+        document.getElementById('webInput3').addEventListener('input', sendValuesToNative);
+        
+        // iOS側から値を受信する関数（グローバルスコープに配置）
+        window.receiveFromNative = function(value) {
+            try {
+                const data = JSON.parse(value);
+                if (data.cluster1 !== undefined) document.getElementById('webInput1').value = data.cluster1;
+                if (data.cluster2 !== undefined) document.getElementById('webInput2').value = data.cluster2;
+                if (data.cluster3 !== undefined) document.getElementById('webInput3').value = data.cluster3;
+                document.getElementById('receivedValue').textContent = value;
+            } catch (e) {
+                // JSON形式でない場合は従来通り
+                document.getElementById('receivedValue').textContent = value;
+            }
+            console.log('iOS側から受信: ' + value);
+        };
     </script>
 </body>
 </html>
-
